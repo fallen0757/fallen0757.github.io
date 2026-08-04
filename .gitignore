@@ -1,0 +1,19 @@
+# GitHub Pages 部署排除文件
+# 本地管理工具（不应上传到 GitHub）
+admin-generator.html
+build-admin.js
+js/admin-core.js
+js/admin-articles.js
+js/admin-apps.js
+js/admin-banner.js
+
+# 系统文件
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 临时文件
+*.tmp
+*.log
+__pycache__/
+node_modules/

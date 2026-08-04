@@ -519,6 +519,31 @@ async function writeSiteConfig(rootHandle, config) {
     await writeTextFile(rootHandle, "js/site-config.js", js);
 }
 
+/* 更新 sitemap.xml（添加新文章 URL） */
+async function updateSitemap(rootHandle, articles) {
+    var xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
+    xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
+    xml += '    <url><loc>https://fallen0757.github.io/rollingquate/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>\n';
+    xml += '    <url><loc>https://fallen0757.github.io/rollingquate/info.html</loc><changefreq>daily</changefreq><priority>0.8</priority></url>\n';
+    xml += '    <url><loc>https://fallen0757.github.io/rollingquate/team-news.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>\n';
+    xml += '    <url><loc>https://fallen0757.github.io/rollingquate/creation-column.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>\n';
+    xml += '    <url><loc>https://fallen0757.github.io/rollingquate/member-interaction.html</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>\n';
+    xml += '    <url><loc>https://fallen0757.github.io/rollingquate/special-topics.html</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>\n';
+    xml += '    <url><loc>https://fallen0757.github.io/rollingquate/app.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>\n';
+    xml += '    <url><loc>https://fallen0757.github.io/rollingquate/about.html</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>\n';
+    xml += '    <url><loc>https://fallen0757.github.io/rollingquate/join.html</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>\n';
+
+    // 添加文章页面
+    for (var i = 0; i < articles.length; i++) {
+        var a = articles[i];
+        xml += '    <url><loc>https://fallen0757.github.io/rollingquate/' + esc(a.file) + '</loc>';
+        xml += '<lastmod>' + esc(a.date) + '</lastmod><priority>0.6</priority></url>\n';
+    }
+
+    xml += '</urlset>\n';
+    await writeTextFile(rootHandle, "sitemap.xml", xml);
+}
+
 /* ============================================================
    选择网站根目录
    ============================================================ */
@@ -1297,6 +1322,7 @@ async function refreshBannerStatus() {
     setDefaultDate("fDate");
 })();
 </script>
+
 
 </body>
 </html>
