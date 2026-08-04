@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>本地管理工具 - RollingQuate 创作信息公示平台（仅本地运行，不上传服务器）</title>
+    <style>
+        /* ===== 本工具自包含样式（不依赖 css/style.css，确保本地独立运行） ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
+            font-size: 14px;
+            color: #333;
+            background: #eef2f7;
+            line-height: 1.7;
+        }
+        a { color: #2363bb; }
+        .admin-header {
+            background: #2363bb;
+            color: #fff;
+            padding: 16px 0;
+            text-align: center;
+            border-bottom: 3px solid #1a4f96;
+        }
+        .admin-header h1 { font-size: 20px; }
+        .admin-header p { font-size: 12px; opacity: 0.92; margin-top: 4px; }
+        .admin-wrap { width: 960px; margin: 24px auto 60px; }
+        .admin-card {
+            background: #fff;
+            border: 1px solid #dce3ec;
+            border-top: 3px solid #2363bb;
+            padding: 22px 26px;
+            margin-bottom: 18px;
+        }
+        .admin-card h2 {
+            font-size: 17px;
+            color: #2363bb;
+            margin-bottom: 14px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 9px;
+        }
+        .form-row { margin-bottom: 14px; }
+        .form-row label {
+            display: block;
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+        .form-row label .req { color: #c0392b; }
+        .form-row input[type="text"],
+        .form-row input[type="password"],
+        .form-row input[type="date"],
+        .form-row input[type="file"],
+        .form-row select,
+        .form-row textarea {
+            width: 100%;
+            border: 1px solid #ccd5e0;
+            padding: 8px 10px;
+            font-size: 14px;
+            font-family: inherit;
+            background: #fff;
+        }
+        .form-row textarea { min-height: 180px; resize: vertical; line-height: 1.7; }
+        .form-row input:focus, .form-row textarea:focus, .form-row select:focus {
+            border-color: #2363bb;
+            outline: none;
+        }
+        .form-actions { text-align: center; margin-top: 18px; }
+        .form-actions.two-btns { display: flex; gap: 12px; justify-content: center; }
+        .btn {
+            display: inline-block;
+            padding: 10px 28px;
+            background: #2363bb;
+            color: #fff;
+            border: none;
+            font-size: 14px;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .btn:hover { background: #1a4f96; }
+        .btn:disabled { background: #aaa; cursor: not-allowed; }
+        .btn-gray { background: #888; }
+        .btn-gray:hover { background: #666; }
+        .btn-line { background: #fff; color: #2363bb; border: 1px solid #2363bb; }
+        .btn-line:hover { background: #f5f9ff; }
+        .hint { font-size: 12px; color: #999; margin-top: 4px; }
+        .dir-status {
+            padding: 10px 14px;
+            background: #f5f9ff;
+            border: 1px solid #d6e4f5;
+            font-size: 13px;
+            color: #2363bb;
+            margin-bottom: 14px;
+            word-break: break-all;
+        }
+        .dir-status.unset { background: #fff5f5; border-color: #f5c8c8; color: #c0392b; }
+        .log-area {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 14px;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 12px;
+            line-height: 1.8;
+            height: 220px;
+            overflow-y: auto;
+            border: 1px solid #333;
+            white-space: pre-wrap;
+        }
+        .log-area .ok { color: #6abf69; }
+        .log-area .warn { color: #e0c060; }
+        .log-area .err { color: #e06c6c; }
+        .log-area .info { color: #6cb6ff; }
+        .article-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .article-table th, .article-table td {
+            border: 1px solid #e3e3e3;
+            padding: 8px 10px;
+            text-align: left;
+        }
+        .article-table th { background: #f5f9ff; color: #2363bb; }
+        .article-table tr.top td { background: #fffbe6; }
+        .login-box { max-width: 400px; margin: 50px auto; }
+        .hidden { display: none !important; }
+        .pwd-tip { font-size: 12px; color: #999; text-align: center; margin-top: 10px; }
+        .pwd-tip code { background: #f0f0f0; padding: 1px 6px; color: #c0392b; }
+        .alert {
+            padding: 10px 14px;
+            border: 1px solid #f5c8c8;
+            background: #fff5f5;
+            color: #c0392b;
+            font-size: 13px;
+            margin-bottom: 14px;
+        }
+        .alert-blue { border-color: #d6e4f5; background: #f5f9ff; color: #2363bb; }
+        .two-btns { display: flex; gap: 12px; justify-content: center; }
+        .foot-note { text-align: center; color: #999; font-size: 12px; margin-top: 18px; }
+    </style>
+</head>
+<body>
+
+    <div class="admin-header">
+        <h1>RollingQuate 创作信息公示平台 · 本地管理生成工具</h1>
+        <p>仅本地浏览器运行 · 不上传服务器 · 生成全静态网站资源</p>
+    </div>
+
+    <!-- ============ 浏览器兼容提示 ============ -->
+    <div class="admin-wrap">
+        <div class="alert hidden" id="browserAlert">
+            当前浏览器不支持 File System Access API。请使用 Chrome / Edge 86+ 版本浏览器打开本工具，
+            并通过 file:// 方式双击打开本页（无需联网）。
+        </div>
+
+        <!-- ============ 登录界面 ============ -->
+        <div class="admin-card login-box" id="loginCard">
+            <h2>管理员登录</h2>
+            <div class="form-row">
+                <label>管理员密码<span class="req">*</span></label>
+                <input type="password" id="pwdInput" placeholder="请输入管理员密码" autocomplete="off">
+            </div>
+            <div class="form-actions">
+                <button class="btn" id="loginBtn">登录</button>
+            </div>
+            <p class="pwd-tip">默认密码：<code>rollingquate</code>（可在源码 ADMIN_PASSWORD 处修改）</p>
+        </div>
+
+        <!-- ============ 主工作台（登录后显示） ============ -->
+        <div class="hidden" id="workbench">
+
+            <!-- 目录选择 -->
+            <div class="admin-card">
+                <h2>① 选择网站根目录文件夹</h2>
+                <div class="dir-status unset" id="dirStatus">尚未选择目录。点击右侧按钮选择网站根目录（即包含 index.html 的文件夹）。</div>
+                <div class="form-actions" style="text-align:left;">
+                    <button class="btn" id="pickDirBtn">选择网站根目录文件夹</button>
+                </div>
+                <p class="hint">说明：本工具将文章详情页写入 articles/、配图写入 images/、并同步更新 articles-data.json 与 js/articles-data.js。首页与各栏目列表页会自动读取清单显示新文章（置顶）。</p>
+            </div>
+
+            <!-- 文章表单 -->
+            <div class="admin-card">
+                <h2>② 填写文章信息</h2>
+                <div class="form-row">
+                    <label>文章标题<span class="req">*</span></label>
+                    <input type="text" id="fTitle" placeholder="请输入文章标题">
+                </div>
+                <div class="form-row" style="display:flex; gap:16px;">
+                    <div style="flex:1;">
+                        <label>发布日期<span class="req">*</span></label>
+                        <input type="date" id="fDate">
+                    </div>
+                    <div style="flex:1;">
+                        <label>所属栏目<span class="req">*</span></label>
+                        <select id="fCategory">
+                            <option value="info">信息发布</option>
+                            <option value="team-news">团队新闻</option>
+                            <option value="creation">创作专栏</option>
+                            <option value="member">社员互动</option>
+                            <option value="special">专题汇总</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <label>文件名标识（可选，仅英文/数字/连字符，留空则自动按时间生成）</label>
+                    <input type="text" id="fSlug" placeholder="例如：demo-level-debut">
+                </div>
+                <div class="form-row">
+                    <label>正文内容<span class="req">*</span></label>
+                    <textarea id="fContent" placeholder="请输入正文。空行分段，段内换行将保留为换行。"></textarea>
+                    <p class="hint">正文将以纯文本方式保存：以空行分隔段落，文章末尾会自动追加联系方式（邮箱 cshusbs@gmail.com / 负责人 FALLEN）。</p>
+                </div>
+                <div class="form-row">
+                    <label>配图（可选，选择图片文件将自动复制到 images/ 文件夹）</label>
+                    <input type="file" id="fImage" accept="image/*">
+                    <p class="hint">未选择配图时，文章页将显示“关卡截图占位”框，可后续手动替换为实机截图。</p>
+                </div>
+                <div class="form-actions">
+                    <button class="btn" id="genBtn">生成网站资源</button>
+                </div>
+            </div>
+
+            <!-- 运行日志 -->
+            <div class="admin-card">
+                <h2>③ 生成日志</h2>
+                <div class="log-area" id="logArea">[等待操作] 请先选择目录并填写文章信息，然后点击“生成网站资源”。</div>
+            </div>
+
+            <!-- 已发布文章清单 -->
+            <div class="admin-card">
+                <h2>④ 已发布文章清单（支持编辑/删除）</h2>
+                <table class="article-table" id="articleTable">
+                    <thead>
+                        <tr><th style="width:110px;">发布日期</th><th>标题</th><th style="width:90px;">栏目</th><th style="width:70px;">配图</th><th style="width:60px;">位置</th><th style="width:70px;">编辑</th><th style="width:70px;">删除</th></tr>
+                    </thead>
+                    <tbody id="articleTbody">
+                        <tr><td colspan="7" style="text-align:center;color:#aaa;">尚未读取</td></tr>
+                    </tbody>
+                </table>
+                <div class="form-actions" style="margin-top:14px;">
+                    <button class="btn-line btn" id="refreshBtn">刷新清单</button>
+                </div>
+            </div>
+
+            <!-- 横幅大图管理 -->
+            <div class="admin-card">
+                <h2>⑤ 首页横幅大图管理</h2>
+                <div class="dir-status unset" id="bannerStatus">尚未设置横幅大图，首页将显示默认占位框。</div>
+                <div class="form-row">
+                    <label>选择横幅图片（建议尺寸 1168 × 300）</label>
+                    <input type="file" id="bannerFile" accept="image/*">
+                </div>
+                <div class="form-actions two-btns">
+                    <button class="btn" id="uploadBannerBtn">上传横幅</button>
+                    <button class="btn btn-gray" id="removeBannerBtn">移除横幅</button>
+                </div>
+                <p class="hint">上传后首页将显示该图片，不再显示占位框。移除后恢复默认占位。</p>
+            </div>
+
+            <!-- 应用天地管理 -->
+            <div class="admin-card">
+                <h2>⑥ 应用天地管理（APK 上传/下载）</h2>
+                <div class="form-row">
+                    <label>应用名称<span class="req">*</span></label>
+                    <input type="text" id="appName" placeholder="请输入应用名称">
+                </div>
+                <div class="form-row" style="display:flex; gap:16px;">
+                    <div style="flex:1;">
+                        <label>版本号<span class="req">*</span></label>
+                        <input type="text" id="appVersion" placeholder="例如：1.0.0">
+                    </div>
+                    <div style="flex:1;">
+                        <label>应用大小（自动计算）</label>
+                        <input type="text" id="appSize" placeholder="上传 APK 后自动显示" readonly style="background:#f5f5f5;">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <label>应用简介</label>
+                    <textarea id="appDesc" placeholder="请输入应用简介" style="min-height:80px;"></textarea>
+                </div>
+                <div class="form-row">
+                    <label>应用图标（可选，PNG/JPG）</label>
+                    <input type="file" id="appIcon" accept="image/*">
+                </div>
+                <div class="form-row">
+                    <label>APK 文件<span class="req">*</span></label>
+                    <input type="file" id="appApk" accept=".apk">
+                    <p class="hint">APK 文件将存入 apps/ 文件夹，用户可通过应用天地页面下载。</p>
+                </div>
+                <div class="form-actions">
+                    <button class="btn" id="addAppBtn">添加应用</button>
+                </div>
+            </div>
+
+            <!-- 已发布应用清单 -->
+            <div class="admin-card">
+                <h2>⑦ 已发布应用清单</h2>
+                <table class="article-table" id="appTable">
+                    <thead>
+                        <tr><th>应用名称</th><th style="width:80px;">版本</th><th style="width:80px;">大小</th><th style="width:70px;">APK</th><th style="width:100px;">日期</th><th style="width:70px;">编辑</th><th style="width:70px;">删除</th></tr>
+                    </thead>
+                    <tbody id="appTbody">
+                        <tr><td colspan="7" style="text-align:center;color:#aaa;">尚未读取</td></tr>
+                    </tbody>
+                </table>
+                <div class="form-actions" style="margin-top:14px;">
+                    <button class="btn-line btn" id="refreshAppBtn">刷新应用清单</button>
+                </div>
+            </div>
+
+            <p class="foot-note">
+                【重要声明：本站为滚动的天空饭制同人爱好者网站，内容仅供社群内部交流，纯属虚构，不属于任何官方机构，不具备行政与法律效力】<br>
+                团队联系邮箱：cshusbs@gmail.com ｜ 网站负责人：FALLEN
+            </p>
+        </div>
+    </div>
+
+<script>
+
+/* ===== js/admin-core.js ===== */
+/* ============================================================
+   admin-core.js - 本地管理工具共享核心模块
+   提供：FS API 封装、日志、清单读写、HTML 转义、栏目映射
+   最终由 build-admin.js 合并到 admin-generator.html
+   ============================================================ */
+
+/* ===== 管理员密码 ===== */
+var ADMIN_PASSWORD = "rollingquate";
+
+/* ===== 栏目映射 ===== */
+var CATEGORY_MAP = {
+    "info":      { name: "信息发布", nav: "info" },
+    "team-news": { name: "团队新闻", nav: "team-news" },
+    "creation":  { name: "创作专栏", nav: "creation" },
+    "member":    { name: "社员互动", nav: "member" },
+    "special":   { name: "专题汇总", nav: "special" }
+};
+
+/* ===== 全局状态 ===== */
+var dirHandle = null;
+
+/* ===== DOM 快捷引用 ===== */
+var $ = function (id) { return document.getElementById(id); };
+
+/* ===== HTML 转义 ===== */
+function esc(str) {
+    if (str === undefined || str === null) return "";
+    return String(str)
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
+
+/* ===== 日志输出 ===== */
+function log(msg, type) {
+    var area = $("logArea");
+    if (!area) return;
+    var time = new Date().toTimeString().slice(0, 8);
+    area.innerHTML += "[" + time + "] " + msg + "\n";
+    area.scrollTop = area.scrollHeight;
+}
+function clearLog() { var a = $("logArea"); if (a) a.innerHTML = ""; }
+
+/* ===== 浏览器兼容性检测 ===== */
+function checkBrowser() {
+    if (typeof window.showDirectoryPicker !== "function") {
+        var el = $("browserAlert");
+        if (el) el.classList.remove("hidden");
+        var btn = $("loginBtn");
+        if (btn) btn.disabled = true;
+        return false;
+    }
+    return true;
+}
+
+/* ===== 登录逻辑 ===== */
+function initLogin() {
+    var btn = $("loginBtn");
+    var inp = $("pwdInput");
+    if (!btn || !inp) return;
+    btn.onclick = function () {
+        if (inp.value === ADMIN_PASSWORD) {
+            $("loginCard").classList.add("hidden");
+            $("workbench").classList.remove("hidden");
+            log("管理员登录成功，工具已就绪。", "ok");
+        } else {
+            alert("密码错误，请重新输入。");
+            inp.value = "";
+            inp.focus();
+        }
+    };
+    inp.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") btn.click();
+    });
+}
+
+/* ============================================================
+   File System Access API 封装
+   ============================================================ */
+
+/* 写入文本文件（自动创建中间目录） */
+async function writeTextFile(rootHandle, relPath, content) {
+    var parts = relPath.split("/");
+    var handle = rootHandle;
+    for (var i = 0; i < parts.length - 1; i++) {
+        handle = await handle.getDirectoryHandle(parts[i], { create: true });
+    }
+    var fileHandle = await handle.getFileHandle(parts[parts.length - 1], { create: true });
+    var writable = await fileHandle.createWritable();
+    await writable.write(content);
+    await writable.close();
+}
+
+/* 写入二进制文件（图片/APK 等） */
+async function writeBinaryFile(rootHandle, relPath, arrayBuffer) {
+    var parts = relPath.split("/");
+    var handle = rootHandle;
+    for (var i = 0; i < parts.length - 1; i++) {
+        handle = await handle.getDirectoryHandle(parts[i], { create: true });
+    }
+    var fileHandle = await handle.getFileHandle(parts[parts.length - 1], { create: true });
+    var writable = await fileHandle.createWritable();
+    await writable.write(arrayBuffer);
+    await writable.close();
+}
+
+/* 检测文件是否存在 */
+async function fileExists(rootHandle, relPath) {
+    try {
+        var parts = relPath.split("/");
+        var handle = rootHandle;
+        for (var i = 0; i < parts.length - 1; i++) {
+            handle = await handle.getDirectoryHandle(parts[i]);
+        }
+        await handle.getFileHandle(parts[parts.length - 1]);
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
+
+/* 删除文件 */
+async function deleteFile(rootHandle, relPath) {
+    var parts = relPath.split("/");
+    var handle = rootHandle;
+    for (var i = 0; i < parts.length - 1; i++) {
+        handle = await handle.getDirectoryHandle(parts[i]);
+    }
+    await handle.removeEntry(parts[parts.length - 1]);
+}
+
+/* ============================================================
+   清单读写（文章 + 应用 + 站点配置）
+   ============================================================ */
+
+/* 读取 articles-data.json */
+async function readManifest(rootHandle) {
+    try {
+        var fileHandle = await rootHandle.getFileHandle("articles-data.json");
+        var file = await fileHandle.getFile();
+        var data = JSON.parse(await file.text());
+        if (!data.articles) data.articles = [];
+        return data;
+    } catch (e) {
+        return { articles: [] };
+    }
+}
+
+/* 写回 articles-data.json */
+async function writeManifest(rootHandle, data) {
+    await writeTextFile(rootHandle, "articles-data.json", JSON.stringify(data, null, 2));
+}
+
+/* 同步写入 js/articles-data.js */
+async function writeArticlesDataJs(rootHandle, articles) {
+    var js = "/* RollingQuate 文章清单（JS 内嵌版，由 admin-generator 自动维护） */\n";
+    js += "window.RQ_ARTICLES = " + JSON.stringify(articles, null, 2) + ";\n";
+    await writeTextFile(rootHandle, "js/articles-data.js", js);
+}
+
+/* 读取 js/apps-data.js 中的 RQ_APPS 数组 */
+async function readAppsData(rootHandle) {
+    try {
+        var fileHandle = await rootHandle.getFileHandle("js/apps-data.js");
+        var file = await fileHandle.getFile();
+        var text = await file.text();
+        // 提取 window.RQ_APPS = [...]; 中的数组
+        var match = text.match(/window\.RQ_APPS\s*=\s*(\[[\s\S]*?\]);\s*$/m);
+        if (match) {
+            var apps = JSON.parse(match[1]);
+            return Array.isArray(apps) ? apps : [];
+        }
+    } catch (e) { /* 文件不存在 */ }
+    return [];
+}
+
+/* 写回 js/apps-data.js */
+async function writeAppsDataJs(rootHandle, apps) {
+    var js = "/* RollingQuate 应用天地清单（JS 内嵌版，由 admin-generator 自动维护） */\n";
+    js += "window.RQ_APPS = " + JSON.stringify(apps, null, 2) + ";\n";
+    await writeTextFile(rootHandle, "js/apps-data.js", js);
+}
+
+/* 读取 js/site-config.js */
+async function readSiteConfig(rootHandle) {
+    try {
+        var fileHandle = await rootHandle.getFileHandle("js/site-config.js");
+        var file = await fileHandle.getFile();
+        var text = await file.text();
+        var match = text.match(/window\.RQ_SITE_CONFIG\s*=\s*(\{[\s\S]*?\});\s*$/m);
+        if (match) {
+            return JSON.parse(match[1]);
+        }
+    } catch (e) { /* 文件不存在 */ }
+    return { bannerImage: "", bannerAlt: "团队主视觉" };
+}
+
+/* 写回 js/site-config.js */
+async function writeSiteConfig(rootHandle, config) {
+    var js = "/* RollingQuate 站点配置（JS 内嵌版，由 admin-generator 自动维护） */\n";
+    js += "window.RQ_SITE_CONFIG = " + JSON.stringify(config, null, 2) + ";\n";
+    await writeTextFile(rootHandle, "js/site-config.js", js);
+}
+
+/* ============================================================
+   选择网站根目录
+   ============================================================ */
+function initDirPicker() {
+    var btn = $("pickDirBtn");
+    if (!btn) return;
+    btn.onclick = async function () {
+        try {
+            dirHandle = await window.showDirectoryPicker({ mode: "readwrite" });
+            var status = $("dirStatus");
+            status.classList.remove("unset");
+            status.textContent = "已选择目录：" + dirHandle.name;
+            log("已选择网站根目录：" + dirHandle.name, "ok");
+
+            // 基础文件检测
+            var checks = [
+                ["index.html", "index.html"],
+                ["css/style.css", "css/style.css"],
+                ["js/common.js", "js/common.js"]
+            ];
+            var allOk = true;
+            for (var i = 0; i < checks.length; i++) {
+                var exists = await fileExists(dirHandle, checks[i][0]);
+                if (!exists) {
+                    log("警告：缺少 " + checks[i][1] + "，请确认选择了正确的网站根目录。", "warn");
+                    allOk = false;
+                }
+            }
+            if (allOk) log("基础文件检测通过。", "ok");
+
+            // 刷新所有表格
+            if (typeof refreshArticleTable === "function") await refreshArticleTable();
+            if (typeof refreshAppTable === "function") await refreshAppTable();
+            if (typeof refreshBannerStatus === "function") await refreshBannerStatus();
+        } catch (e) {
+            if (e && e.name === "AbortError") {
+                log("已取消选择目录。", "warn");
+            } else {
+                log("选择目录失败：" + (e && e.message ? e.message : e), "err");
+            }
+        }
+    };
+}
+
+/* ============================================================
+   文章详情页 HTML 模板
+   ============================================================ */
+
+function textToParagraphs(text) {
+    var paras = String(text || "").split(/\n{2,}/);
+    var html = "";
+    for (var i = 0; i < paras.length; i++) {
+        var p = paras[i].replace(/^\s+|\s+$/g, "");
+        if (!p) continue;
+        p = esc(p).replace(/\n/g, "<br>");
+        html += "<p>" + p + "</p>\n";
+    }
+    return html;
+}
+
+function buildImageBlock(imageRel, title) {
+    if (imageRel) {
+        return '<div class="article-img-block">' +
+            '<img class="real-img" src="' + esc(imageRel) + '" alt="' + esc(title) + ' 配图">' +
+            '<div class="caption">图：' + esc(title) + ' 配图</div></div>';
+    }
+    return '<div class="article-img-block">' +
+        '<div class="img-placeholder">关卡截图占位 · 可后续替换（建议尺寸 560 × 320）</div>' +
+        '<div class="caption">图：关卡实机截图占位</div></div>';
+}
+
+function catNavHref(category) {
+    var map = {
+        "info": "info.html", "team-news": "team-news.html",
+        "creation": "creation-column.html", "member": "member-interaction.html",
+        "special": "special-topics.html"
+    };
+    return map[category] || "info.html";
+}
+
+function buildArticleHtml(a) {
+    var cat = CATEGORY_MAP[a.category] || { name: "信息发布", nav: "info" };
+    var paragraphs = textToParagraphs(a.content);
+    var imgBlock = buildImageBlock(a.imageRel, a.title);
+    var contactBlock = '<h3>联系方式</h3>\n<p>团队联系邮箱：cshusbs@gmail.com</p>\n<p>网站负责人：FALLEN</p>\n';
+
+    var paraArr = paragraphs.split("\n").filter(function (x) { return x.trim() !== ""; });
+    var firstPara = paraArr.length > 0 ? paraArr[0] : "";
+    var restParas = paraArr.slice(1).join("\n");
+    var contentHtml = firstPara + "\n" + imgBlock + "\n" + restParas + "\n" + contactBlock;
+
+    var html = '';
+    html += '<!DOCTYPE html>\n<html lang="zh-CN">\n<head>\n';
+    html += '    <meta charset="UTF-8">\n';
+    html += '    <meta name="viewport" content="width=device-width, initial-scale=1.0">\n';
+    html += '    <title>' + esc(a.title) + ' - RollingQuate 创作信息公示平台</title>\n';
+    html += '    <link rel="stylesheet" href="../css/style.css">\n';
+    html += '</head>\n<body data-page="' + cat.nav + '">\n\n';
+
+    // 顶部横幅
+    html += '    <div class="top-banner"><div class="container"><div class="logo-area">';
+    html += '        <div class="logo-placeholder">RQ</div>';
+    html += '        <div class="site-title"><h1>RollingQuate 创作信息公示平台</h1>';
+    html += '        <p class="subtitle">滚动天空饭制同人爱好者创作社群 · 内容纯属虚构</p></div>';
+    html += '    </div><div class="top-right" id="topDate"></div></div></div>\n\n';
+
+    // 免责声明
+    html += '    <div class="disclaimer-bar">【重要声明：本站为滚动的天空饭制同人爱好者网站，内容仅供社群内部交流，纯属虚构，不属于任何官方机构，不具备行政与法律效力】</div>\n\n';
+
+    // 主导航
+    html += '    <nav class="main-nav"><div class="container"><ul>\n';
+    html += '        <li><a href="../index.html" data-nav="home">首页</a></li>\n';
+    html += '        <li><a href="../info.html" data-nav="info">信息发布</a></li>\n';
+    html += '        <li><a href="../team-news.html" data-nav="team-news">团队新闻</a></li>\n';
+    html += '        <li><a href="../creation-column.html" data-nav="creation">创作专栏</a></li>\n';
+    html += '        <li><a href="../member-interaction.html" data-nav="member">社员互动</a></li>\n';
+    html += '        <li><a href="../special-topics.html" data-nav="special">专题汇总</a></li>\n';
+    html += '        <li><a href="../app.html" data-nav="apps">应用天地</a></li>\n';
+    html += '        <li><a href="../about.html" data-nav="about">团队概况</a></li>\n';
+    html += '    </ul></div></nav>\n\n';
+
+    // 面包屑
+    html += '    <div class="sub-nav"><div class="container"><div class="crumb">';
+    html += '<a href="../index.html">首页</a><span>&gt;</span>';
+    html += '<a href="../' + catNavHref(a.category) + '">' + cat.name + '</a><span>&gt;</span>正文';
+    html += '</div></div></div>\n\n';
+
+    // 主体
+    html += '    <div class="main-layout container">\n\n';
+
+    // 左侧栏
+    html += '        <aside class="sidebar"><div class="box side-menu"><div class="box-title"><h2>快捷导航</h2></div><ul>\n';
+    html += '            <li><a href="../join.html">入队申请指引</a></li>\n';
+    html += '            <li><a href="../about.html">团队概况</a></li>\n';
+    html += '            <li><a href="../info.html">信息发布</a></li>\n';
+    html += '            <li><a href="../creation-column.html">创作专栏</a></li>\n';
+    html += '            <li><a href="../team-news.html">团队新闻</a></li>\n';
+    html += '            <li><a href="../special-topics.html">专题汇总</a></li>\n';
+    html += '            <li><a href="../app.html">应用天地</a></li>\n';
+    html += '        </ul></div>\n';
+    html += '        <div class="box side-contact"><div class="box-title"><h2>联系方式</h2></div><div class="box-body">';
+    html += '            <div class="row"><span class="label">团队邮箱：</span><span class="val">cshusbs@gmail.com</span></div>\n';
+    html += '            <div class="row"><span class="label">网站负责人：</span><span class="val">FALLEN</span></div>\n';
+    html += '        </div></div></aside>\n\n';
+
+    // 中间正文
+    html += '        <main class="content"><div class="box"><div class="box-title"><h2>' + cat.name + '</h2></div>\n';
+    html += '        <div class="article-detail"><h1>' + esc(a.title) + '</h1>\n';
+    html += '        <div class="article-meta"><span>发布日期：' + esc(a.date) + '</span>';
+    html += '<span>所属栏目：' + cat.name + '</span><span>负责人：FALLEN</span></div>\n';
+    html += '        <div class="article-content">\n' + contentHtml + '        </div></div></div></main>\n\n';
+
+    // 右侧栏
+    html += '        <aside class="right-col">';
+    html += '        <div class="box right-box"><div class="box-title"><h2>最新发布</h2><a class="more" href="../info.html">更多 &gt;</a></div>';
+    html += '<div class="box-body"><ul class="notice-list" id="rightNotice"></ul></div></div>\n';
+    html += '        <div class="box right-box group-links"><div class="box-title"><h2>官方社群</h2></div><div class="box-body">';
+    html += '            <a href="https://qm.qq.com/q/5bF26oRxpS" target="_blank" rel="noopener">官方①群｜联合国</a>\n';
+    html += '            <a href="https://qm.qq.com/q/jAQxHOU1cQ" target="_blank" rel="noopener">官方②群 Rolling Eclipse Xplode</a>\n';
+    html += '            <a href="https://qm.qq.com/q/l94nU3nsT6" target="_blank" rel="noopener">官方群 Rolling Eclipse Xplode</a>\n';
+    html += '        </div></div></aside>\n\n';
+
+    html += '    </div>\n\n';
+
+    // 页脚
+    html += '    <footer><div class="footer-main"><div class="container footer-cols">';
+    html += '        <div class="footer-col"><h4>关于本站</h4><p>RollingQuate 创作信息公示平台</p>';
+    html += '<p>滚动天空饭制同人爱好者创作社群</p><p>内容纯属虚构，仅供社群内部交流</p></div>\n';
+    html += '        <div class="footer-col"><h4>联系方式</h4><p>团队联系邮箱：cshusbs@gmail.com</p><p>网站负责人：FALLEN</p></div>\n';
+    html += '        <div class="footer-col"><h4>官方社群</h4><div class="footer-groups">';
+    html += '            <a href="https://qm.qq.com/q/5bF26oRxpS" target="_blank" rel="noopener">官方①群｜联合国</a>\n';
+    html += '            <a href="https://qm.qq.com/q/jAQxHOU1cQ" target="_blank" rel="noopener">官方②群 Rolling Eclipse Xplode</a>\n';
+    html += '            <a href="https://qm.qq.com/q/l94nU3nsT6" target="_blank" rel="noopener">官方①群 Rolling Eclipse Xplode</a>\n';
+    html += '        </div></div></div></div>\n';
+    html += '        <div class="footer-bottom"><div class="container">';
+    html += '<p class="footer-disclaimer">【重要声明：本站为滚动的天空饭制同人爱好者网站，内容仅供社群内部交流，纯属虚构，不属于任何官方机构，不具备行政与法律效力】</p>\n';
+    html += '<p>© RollingQuate 创作信息公示平台 · 网站负责人 FALLEN · 邮箱 cshusbs@gmail.com</p>';
+    html += '</div></div></footer>\n\n';
+
+    // 脚本
+    html += '    <script src="../js/articles-data.js"><\/script>\n';
+    html += '    <script src="../js/common.js"><\/script>\n';
+    html += '    <script>rqInit(); rqRenderRightNotice("rightNotice", 7);<\/script>\n';
+    html += '</body>\n</html>\n';
+    return html;
+}
+
+function makeSummary(content) {
+    var s = String(content || "").replace(/\s+/g, " ").trim();
+    if (s.length > 60) s = s.slice(0, 60) + "……";
+    return s;
+}
+
+/* 默认日期 */
+function setDefaultDate(inputId) {
+    var el = $(inputId);
+    if (!el) return;
+    var d = new Date();
+    var y = d.getFullYear();
+    var m = ("0" + (d.getMonth() + 1)).slice(-2);
+    var day = ("0" + d.getDate()).slice(-2);
+    el.value = y + "-" + m + "-" + day;
+}
+
+
+/* ===== js/admin-articles.js ===== */
+/* ============================================================
+   admin-articles.js - 文章管理模块（增删改查）
+   最终由 build-admin.js 合并到 admin-generator.html
+   ============================================================ */
+
+/* 当前编辑中的文章 ID（空字符串表示新建） */
+var editingArticleId = "";
+
+/* ===== 生成/编辑文章 ===== */
+function initArticleForm() {
+    var btn = $("genBtn");
+    if (!btn) return;
+    btn.onclick = async function () {
+        if (!dirHandle) { alert("请先选择网站根目录文件夹。"); return; }
+        var title = $("fTitle").value.trim();
+        var date = $("fDate").value.trim();
+        var category = $("fCategory").value;
+        var slug = $("fSlug").value.trim();
+        var content = $("fContent").value;
+        var imageFile = $("fImage").files[0];
+
+        if (!title) { alert("请填写文章标题。"); return; }
+        if (!date) { alert("请选择发布日期。"); return; }
+        if (!content || !content.trim()) { alert("请填写正文内容。"); return; }
+        if (slug && !/^[a-zA-Z0-9-]+$/.test(slug)) { alert("文件名标识仅允许英文字母、数字和连字符。"); return; }
+
+        btn.disabled = true;
+        clearLog();
+        log("开始" + (editingArticleId ? "更新" : "生成") + "文章……", "info");
+
+        try {
+            // 确定文章 ID
+            var articleId;
+            if (editingArticleId) {
+                articleId = editingArticleId;
+            } else {
+                var datePart = date.replace(/-/g, "");
+                if (slug) {
+                    articleId = datePart + "-" + slug;
+                } else {
+                    var t = new Date();
+                    var hh = ("0" + t.getHours()).slice(-2);
+                    var mm = ("0" + t.getMinutes()).slice(-2);
+                    var ss = ("0" + t.getSeconds()).slice(-2);
+                    articleId = datePart + "-" + hh + mm + ss;
+                }
+            }
+            var articleFile = "articles/" + articleId + ".html";
+            log("文章 ID：" + articleId);
+
+            // 处理配图
+            var imageRel = "";
+            var imageRootRel = "";
+            if (imageFile) {
+                var ext = "";
+                var dotIdx = imageFile.name.lastIndexOf(".");
+                if (dotIdx >= 0) ext = imageFile.name.slice(dotIdx).toLowerCase();
+                if (!ext) ext = ".jpg";
+                var imageName = articleId + ext;
+                imageRootRel = "images/" + imageName;
+                imageRel = "../images/" + imageName;
+                log("正在写入配图：" + imageRootRel + " ……");
+                await writeBinaryFile(dirHandle, imageRootRel, await imageFile.arrayBuffer());
+                log("配图已写入 images/ 文件夹。", "ok");
+            }
+
+            // 生成详情页 HTML
+            log("正在生成文章详情页：" + articleFile + " ……");
+            await writeTextFile(dirHandle, articleFile, buildArticleHtml({
+                id: articleId, title: title, date: date,
+                category: category, content: content, imageRel: imageRel
+            }));
+            log("文章详情页已生成。", "ok");
+
+            // 更新清单
+            log("正在更新清单……");
+            var manifest = await readManifest(dirHandle);
+            manifest.articles = manifest.articles.filter(function (x) { return x.id !== articleId; });
+            var entry = {
+                id: articleId, title: title, date: date, category: category,
+                categoryName: (CATEGORY_MAP[category] || {}).name || "",
+                summary: makeSummary(content), image: imageRootRel,
+                file: articleFile, author: "FALLEN"
+            };
+            if (editingArticleId) {
+                // 编辑模式：保持原位置
+                var origIdx = -1;
+                for (var i = 0; i < manifest.articles.length; i++) {
+                    if (manifest.articles[i].id === editingArticleId) { origIdx = i; break; }
+                }
+                manifest.articles.splice(origIdx >= 0 ? origIdx : 0, 0, entry);
+            } else {
+                manifest.articles.unshift(entry);
+            }
+            await writeManifest(dirHandle, manifest);
+            await writeArticlesDataJs(dirHandle, manifest.articles);
+            log("清单已更新。", "ok");
+
+            // 刷新表格
+            await refreshArticleTable();
+
+            log("────────────────────────────────", "ok");
+            log("文章" + (editingArticleId ? "更新" : "生成") + "完成！", "ok");
+            alert("文章" + (editingArticleId ? "更新" : "生成") + "完成！");
+
+            // 重置表单
+            editingArticleId = "";
+            $("fTitle").value = "";
+            $("fSlug").value = "";
+            $("fContent").value = "";
+            $("fImage").value = "";
+            setDefaultDate("fDate");
+            btn.textContent = "生成网站资源";
+        } catch (e) {
+            log("操作失败：" + (e && e.message ? e.message : e), "err");
+            alert("操作失败：" + (e && e.message ? e.message : e));
+        } finally {
+            btn.disabled = false;
+        }
+    };
+}
+
+/* ===== 编辑文章（填充表单） ===== */
+async function editArticle(articleId) {
+    if (!dirHandle) { alert("请先选择网站根目录。"); return; }
+    var manifest = await readManifest(dirHandle);
+    var article = null;
+    for (var i = 0; i < manifest.articles.length; i++) {
+        if (manifest.articles[i].id === articleId) { article = manifest.articles[i]; break; }
+    }
+    if (!article) { alert("未找到该文章。"); return; }
+
+    editingArticleId = articleId;
+    $("fTitle").value = article.title || "";
+    $("fDate").value = article.date || "";
+    $("fCategory").value = article.category || "info";
+    $("fContent").value = ""; // 正文无法从清单恢复，提示用户
+    $("fSlug").value = "";
+    $("fImage").value = "";
+
+    var genBtn = $("genBtn");
+    genBtn.textContent = "更新文章（编辑模式）";
+
+    log("已进入编辑模式：「" + article.title + "」。请重新填写正文内容后点击更新。", "warn");
+    alert("已进入编辑模式：「" + article.title + "」\n\n注意：正文内容无法从清单恢复，请重新填写。\n配图如不重新选择则保留原图。");
+
+    // 滚动到表单顶部
+    $("fTitle").scrollIntoView({ behavior: "smooth" });
+    $("fTitle").focus();
+}
+
+/* ===== 删除文章 ===== */
+async function deleteArticle(articleId) {
+    if (!dirHandle) { alert("请先选择网站根目录。"); return; }
+    var manifest = await readManifest(dirHandle);
+    var article = null;
+    for (var i = 0; i < manifest.articles.length; i++) {
+        if (manifest.articles[i].id === articleId) { article = manifest.articles[i]; break; }
+    }
+    if (!article) { alert("未找到该文章。"); return; }
+
+    if (!confirm("确定要删除文章「" + article.title + "」吗？\n\n此操作将：\n1. 从清单中移除该文章\n2. 删除 articles/" + articleId + ".html 文件\n3. 删除配图文件（如有）\n\n此操作不可撤销！")) {
+        return;
+    }
+
+    try {
+        // 删除详情页
+        await deleteFile(dirHandle, article.file);
+        log("已删除：" + article.file, "ok");
+
+        // 删除配图
+        if (article.image) {
+            try {
+                await deleteFile(dirHandle, article.image);
+                log("已删除配图：" + article.image, "ok");
+            } catch (e) {
+                log("配图删除失败（可能已不存在）：" + article.image, "warn");
+            }
+        }
+
+        // 更新清单
+        manifest.articles = manifest.articles.filter(function (x) { return x.id !== articleId; });
+        await writeManifest(dirHandle, manifest);
+        await writeArticlesDataJs(dirHandle, manifest.articles);
+        log("清单已更新。", "ok");
+
+        await refreshArticleTable();
+        alert("文章「" + article.title + "」已删除。");
+    } catch (e) {
+        log("删除失败：" + (e && e.message ? e.message : e), "err");
+        alert("删除失败：" + (e && e.message ? e.message : e));
+    }
+}
+
+/* ===== 文章清单表格 ===== */
+async function refreshArticleTable() {
+    if (!dirHandle) return;
+    var tbody = $("articleTbody");
+    if (!tbody) return;
+    try {
+        var manifest = await readManifest(dirHandle);
+        var arts = manifest.articles || [];
+        if (arts.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#aaa;">暂无文章</td></tr>';
+            return;
+        }
+        var html = "";
+        for (var i = 0; i < arts.length; i++) {
+            var a = arts[i];
+            var top = i === 0 ? ' class="top"' : "";
+            var imgCell = a.image ? "有" : "占位";
+            html += '<tr' + top + '>' +
+                '<td>' + esc(a.date) + '</td>' +
+                '<td><a href="' + esc(a.file) + '" target="_blank">' + esc(a.title) + '</a></td>' +
+                '<td>' + esc(a.categoryName || (CATEGORY_MAP[a.category] || {}).name || "") + '</td>' +
+                '<td>' + imgCell + '</td>' +
+                '<td>' + (i === 0 ? "置顶" : "第" + (i + 1) + "条") + '</td>' +
+                '<td style="width:70px;"><button class="btn-line btn" style="padding:4px 10px;font-size:12px;" onclick="editArticle(\'' + esc(a.id) + '\')">编辑</button></td>' +
+                '<td style="width:70px;"><button class="btn btn-gray" style="padding:4px 10px;font-size:12px;" onclick="deleteArticle(\'' + esc(a.id) + '\')">删除</button></td>' +
+                '</tr>';
+        }
+        tbody.innerHTML = html;
+        log("已加载 " + arts.length + " 篇文章记录。", "info");
+    } catch (e) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#c0392b;">读取失败：' + esc(e.message || e) + '</td></tr>';
+    }
+}
+
+function initArticleRefresh() {
+    var btn = $("refreshBtn");
+    if (!btn) return;
+    btn.onclick = function () {
+        if (!dirHandle) { alert("请先选择网站根目录。"); return; }
+        refreshArticleTable();
+    };
+}
+
+
+/* ===== js/admin-apps.js ===== */
+/* ============================================================
+   admin-apps.js - 应用天地管理模块（增删改查 APK + 图标）
+   最终由 build-admin.js 合并到 admin-generator.html
+   ============================================================ */
+
+var editingAppId = "";
+
+/* ===== 添加/编辑应用 ===== */
+function initAppForm() {
+    var btn = $("addAppBtn");
+    if (!btn) return;
+    btn.onclick = async function () {
+        if (!dirHandle) { alert("请先选择网站根目录文件夹。"); return; }
+        var name = $("appName").value.trim();
+        var version = $("appVersion").value.trim();
+        var desc = $("appDesc").value.trim();
+        var iconFile = $("appIcon").files[0];
+        var apkFile = $("appApk").files[0];
+
+        if (!name) { alert("请填写应用名称。"); return; }
+        if (!version) { alert("请填写版本号。"); return; }
+
+        btn.disabled = true;
+        clearLog();
+        log("开始" + (editingAppId ? "更新" : "添加") + "应用……", "info");
+
+        try {
+            var appId;
+            if (editingAppId) {
+                appId = editingAppId;
+            } else {
+                var t = new Date();
+                var y = t.getFullYear();
+                var m = ("0" + (t.getMonth() + 1)).slice(-2);
+                var d = ("0" + t.getDate()).slice(-2);
+                var hh = ("0" + t.getHours()).slice(-2);
+                var mm = ("0" + t.getMinutes()).slice(-2);
+                var ss = ("0" + t.getSeconds()).slice(-2);
+                appId = "app-" + y + m + d + "-" + hh + mm + ss;
+            }
+
+            // 处理图标
+            var iconRel = "";
+            if (iconFile) {
+                var ext = "";
+                var dotIdx = iconFile.name.lastIndexOf(".");
+                if (dotIdx >= 0) ext = iconFile.name.slice(dotIdx).toLowerCase();
+                if (!ext) ext = ".png";
+                var iconPath = "images/" + appId + "-icon" + ext;
+                iconRel = iconPath;
+                log("正在写入图标：" + iconPath + " ……");
+                await writeBinaryFile(dirHandle, iconPath, await iconFile.arrayBuffer());
+                log("图标已写入。", "ok");
+            }
+
+            // 处理 APK
+            var apkRel = "";
+            var sizeStr = "";
+            if (apkFile) {
+                var apkPath = "apps/" + appId + ".apk";
+                apkRel = apkPath;
+                sizeStr = formatFileSize(apkFile.size);
+                log("正在写入 APK：" + apkPath + "（" + sizeStr + "）……");
+                await writeBinaryFile(dirHandle, apkPath, await apkFile.arrayBuffer());
+                log("APK 已写入 apps/ 文件夹。", "ok");
+            }
+
+            // 读取现有应用清单
+            var apps = await readAppsData(dirHandle);
+
+            // 构建应用条目
+            var entry = {
+                id: appId,
+                name: name,
+                version: version,
+                description: desc,
+                icon: iconRel,
+                apk: apkRel,
+                size: sizeStr,
+                date: new Date().toISOString().slice(0, 10),
+                author: "FALLEN"
+            };
+
+            if (editingAppId) {
+                // 编辑模式：替换原条目
+                for (var i = 0; i < apps.length; i++) {
+                    if (apps[i].id === editingAppId) {
+                        // 如果没重新选图标/APK，保留原来的
+                        if (!iconFile && apps[i].icon) entry.icon = apps[i].icon;
+                        if (!apkFile && apps[i].apk) { entry.apk = apps[i].apk; entry.size = apps[i].size; }
+                        apps[i] = entry;
+                        break;
+                    }
+                }
+            } else {
+                apps.unshift(entry);
+            }
+
+            await writeAppsDataJs(dirHandle, apps);
+            log("应用清单已更新。", "ok");
+
+            await refreshAppTable();
+            log("应用" + (editingAppId ? "更新" : "添加") + "完成！", "ok");
+            alert("应用" + (editingAppId ? "更新" : "添加") + "完成！");
+
+            // 重置
+            editingAppId = "";
+            $("appName").value = "";
+            $("appVersion").value = "";
+            $("appDesc").value = "";
+            $("appIcon").value = "";
+            $("appApk").value = "";
+            btn.textContent = "添加应用";
+        } catch (e) {
+            log("操作失败：" + (e && e.message ? e.message : e), "err");
+            alert("操作失败：" + (e && e.message ? e.message : e));
+        } finally {
+            btn.disabled = false;
+        }
+    };
+}
+
+/* ===== 编辑应用 ===== */
+async function editApp(appId) {
+    if (!dirHandle) { alert("请先选择网站根目录。"); return; }
+    var apps = await readAppsData(dirHandle);
+    var app = null;
+    for (var i = 0; i < apps.length; i++) {
+        if (apps[i].id === appId) { app = apps[i]; break; }
+    }
+    if (!app) { alert("未找到该应用。"); return; }
+
+    editingAppId = appId;
+    $("appName").value = app.name || "";
+    $("appVersion").value = app.version || "";
+    $("appDesc").value = app.description || "";
+    $("appIcon").value = "";
+    $("appApk").value = "";
+
+    var btn = $("addAppBtn");
+    btn.textContent = "更新应用（编辑模式）";
+
+    log("已进入应用编辑模式：「" + app.name + "」。", "warn");
+    alert("已进入编辑模式：「" + app.name + "」\n\n不重新选择图标/APK 则保留原文件。");
+    $("appName").scrollIntoView({ behavior: "smooth" });
+    $("appName").focus();
+}
+
+/* ===== 删除应用 ===== */
+async function deleteApp(appId) {
+    if (!dirHandle) { alert("请先选择网站根目录。"); return; }
+    var apps = await readAppsData(dirHandle);
+    var app = null;
+    for (var i = 0; i < apps.length; i++) {
+        if (apps[i].id === appId) { app = apps[i]; break; }
+    }
+    if (!app) { alert("未找到该应用。"); return; }
+
+    if (!confirm("确定要删除应用「" + app.name + "」吗？\n\n将删除图标和 APK 文件，此操作不可撤销！")) return;
+
+    try {
+        if (app.icon) {
+            try { await deleteFile(dirHandle, app.icon); log("已删除图标：" + app.icon, "ok"); } catch (e) {}
+        }
+        if (app.apk) {
+            try { await deleteFile(dirHandle, app.apk); log("已删除 APK：" + app.apk, "ok"); } catch (e) {}
+        }
+        apps = apps.filter(function (x) { return x.id !== appId; });
+        await writeAppsDataJs(dirHandle, apps);
+        log("应用「" + app.name + "」已删除。", "ok");
+        await refreshAppTable();
+        alert("应用已删除。");
+    } catch (e) {
+        log("删除失败：" + (e && e.message ? e.message : e), "err");
+        alert("删除失败：" + (e && e.message ? e.message : e));
+    }
+}
+
+/* ===== 应用清单表格 ===== */
+async function refreshAppTable() {
+    if (!dirHandle) return;
+    var tbody = $("appTbody");
+    if (!tbody) return;
+    try {
+        var apps = await readAppsData(dirHandle);
+        if (apps.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#aaa;">暂无应用</td></tr>';
+            return;
+        }
+        var html = "";
+        for (var i = 0; i < apps.length; i++) {
+            var a = apps[i];
+            html += '<tr>' +
+                '<td>' + esc(a.name) + '</td>' +
+                '<td>' + esc(a.version) + '</td>' +
+                '<td>' + esc(a.size || "未知") + '</td>' +
+                '<td>' + (a.apk ? "有" : "无") + '</td>' +
+                '<td>' + esc(a.date) + '</td>' +
+                '<td style="width:70px;"><button class="btn-line btn" style="padding:4px 10px;font-size:12px;" onclick="editApp(\'' + esc(a.id) + '\')">编辑</button></td>' +
+                '<td style="width:70px;"><button class="btn btn-gray" style="padding:4px 10px;font-size:12px;" onclick="deleteApp(\'' + esc(a.id) + '\')">删除</button></td>' +
+                '</tr>';
+        }
+        tbody.innerHTML = html;
+        log("已加载 " + apps.length + " 个应用记录。", "info");
+    } catch (e) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#c0392b;">读取失败：' + esc(e.message || e) + '</td></tr>';
+    }
+}
+
+function initAppRefresh() {
+    var btn = $("refreshAppBtn");
+    if (!btn) return;
+    btn.onclick = function () {
+        if (!dirHandle) { alert("请先选择网站根目录。"); return; }
+        refreshAppTable();
+    };
+}
+
+/* ===== 文件大小格式化 ===== */
+function formatFileSize(bytes) {
+    if (!bytes || bytes === 0) return "0 B";
+    var k = 1024;
+    var sizes = ["B", "KB", "MB", "GB"];
+    var i = Math.floor(Math.log(bytes) / Math.log(k));
+    return (bytes / Math.pow(k, i)).toFixed(1) + " " + sizes[i];
+}
+
+
+/* ===== js/admin-banner.js ===== */
+/* ============================================================
+   admin-banner.js - 首页横幅大图上传模块
+   最终由 build-admin.js 合并到 admin-generator.html
+   ============================================================ */
+
+/* ===== 上传横幅大图 ===== */
+function initBannerUpload() {
+    var btn = $("uploadBannerBtn");
+    if (!btn) return;
+    btn.onclick = async function () {
+        if (!dirHandle) { alert("请先选择网站根目录。"); return; }
+        var file = $("bannerFile").files[0];
+        if (!file) { alert("请先选择图片文件。"); return; }
+        if (!/^image\//.test(file.type)) { alert("请选择图片文件。"); return; }
+
+        btn.disabled = true;
+        log("正在上传横幅大图……", "info");
+
+        try {
+            var ext = "";
+            var dotIdx = file.name.lastIndexOf(".");
+            if (dotIdx >= 0) ext = file.name.slice(dotIdx).toLowerCase();
+            if (!ext) ext = ".jpg";
+            var bannerPath = "images/banner" + ext;
+
+            await writeBinaryFile(dirHandle, bannerPath, await file.arrayBuffer());
+            log("横幅图片已写入：" + bannerPath, "ok");
+
+            // 更新 site-config.js
+            var config = await readSiteConfig(dirHandle);
+            config.bannerImage = bannerPath;
+            config.bannerAlt = "团队主视觉";
+            await writeSiteConfig(dirHandle, config);
+            log("js/site-config.js 已更新，首页横幅将显示新图片。", "ok");
+
+            await refreshBannerStatus();
+            alert("横幅大图上传成功！刷新首页即可看到新图片。");
+            $("bannerFile").value = "";
+        } catch (e) {
+            log("上传失败：" + (e && e.message ? e.message : e), "err");
+            alert("上传失败：" + (e && e.message ? e.message : e));
+        } finally {
+            btn.disabled = false;
+        }
+    };
+
+    // 移除横幅
+    var removeBtn = $("removeBannerBtn");
+    if (removeBtn) {
+        removeBtn.onclick = async function () {
+            if (!dirHandle) { alert("请先选择网站根目录。"); return; }
+            if (!confirm("确定要移除首页横幅大图吗？将恢复为默认占位框。")) return;
+
+            try {
+                var config = await readSiteConfig(dirHandle);
+                if (config.bannerImage) {
+                    try { await deleteFile(dirHandle, config.bannerImage); } catch (e) {}
+                }
+                config.bannerImage = "";
+                await writeSiteConfig(dirHandle, config);
+                log("横幅已移除，首页将显示默认占位框。", "ok");
+                await refreshBannerStatus();
+                alert("横幅已移除。");
+            } catch (e) {
+                log("操作失败：" + (e && e.message ? e.message : e), "err");
+            }
+        };
+    }
+}
+
+/* ===== 横幅状态显示 ===== */
+async function refreshBannerStatus() {
+    if (!dirHandle) return;
+    var el = $("bannerStatus");
+    if (!el) return;
+    try {
+        var config = await readSiteConfig(dirHandle);
+        if (config.bannerImage) {
+            el.classList.remove("unset");
+            el.textContent = "当前横幅：" + config.bannerImage + "（点击「移除横幅」可恢复占位框）";
+        } else {
+            el.classList.add("unset");
+            el.textContent = "尚未设置横幅大图，首页将显示默认占位框。";
+        }
+    } catch (e) {
+        el.classList.add("unset");
+        el.textContent = "读取横幅配置失败。";
+    }
+}
+
+
+/* ===== 启动 ===== */
+(function init() {
+    if (!checkBrowser()) return;
+    initLogin();
+    initDirPicker();
+    initArticleForm();
+    initArticleRefresh();
+    initAppForm();
+    initAppRefresh();
+    initBannerUpload();
+    setDefaultDate("fDate");
+})();
+</script>
+
+</body>
+</html>
