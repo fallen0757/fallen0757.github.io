@@ -1,7 +1,11 @@
 # GitHub Pages 部署排除文件
 # 本地管理工具（不应上传到 GitHub）
+.admin-tools/
 admin-generator.html
 build-admin.js
+optimize-meta.js
+fix-css-links.js
+deploy.ps1
 js/admin-core.js
 js/admin-articles.js
 js/admin-apps.js

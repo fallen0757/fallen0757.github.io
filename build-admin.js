@@ -10,8 +10,8 @@ const path = require('path');
 
 const rootDir = 'c:/Users/Huawei/Downloads/rollingquate';
 
-// 读取 HTML 模板
-const htmlPath = path.join(rootDir, 'admin-generator.html');
+// 读取 HTML 模板（admin-generator 已移至隐藏目录）
+const htmlPath = path.join(rootDir, '.admin-tools/local-generator/admin-generator.html');
 let html = fs.readFileSync(htmlPath, 'utf8');
 
 // 读取所有 JS 模块
