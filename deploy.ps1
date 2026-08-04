@@ -87,4 +87,4 @@ Write-Host "3. 在仓库 Settings -> Pages 中启用 GitHub Pages" -ForegroundCo
 Write-Host "4. 访问 https://你的用户名.github.io/仓库名/" -ForegroundColor White
 Write-Host ""
 Write-Host "按任意键退出..." -ForegroundColor Gray
-$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+$null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
